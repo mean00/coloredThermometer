@@ -37,6 +37,12 @@ SET(ARDUINO_UPLOAD_METHOD DFUUpload)
 set(ARDUINO_CPUMENU .menu.cpu.${ARDUINO_CPU})
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 
+ 
+include_directories(MapleFreeRTOS1000//Source/include)
+include_directories(MapleFreeRTOS1000//)
+include_directories(.)
+link_directories( ${CUSTOM_LIB_DIR})
+ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
 
 #include_directories(SevSeg/src)
 
