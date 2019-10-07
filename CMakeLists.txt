@@ -60,5 +60,7 @@ generate_arduino_firmware(ColoredThermo
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS)
+
 
 # EOF

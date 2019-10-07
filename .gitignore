@@ -1,0 +1,11 @@
+*.sw*
+nbproject/*
+build/*
+build
+*.rej
+*.back
+*/bin
+build*
+*.bin
+.vscode
+
