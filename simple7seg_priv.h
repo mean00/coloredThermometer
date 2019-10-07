@@ -9,6 +9,10 @@ public:
 protected:
         int _digits[4];
         int _pins[10];
-  
+        int _value[4];
+        
+        void run();
+ static void trampoline(void *a);
+        
 };
 // EOF

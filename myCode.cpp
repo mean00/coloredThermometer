@@ -37,7 +37,7 @@ void myLoop()
     for(int j=0;j<4;j++)
     {
         int k=(i+j)%10;
-        sevenSeg->setNumber(j,k);
+        //sevenSeg->setNumber(j,k);
     }
     xDelay(1000);    
     i++;

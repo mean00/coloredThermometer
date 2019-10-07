@@ -2,11 +2,20 @@
 
 #include "Wire.h"
 #include "simple7seg_priv.h"
+#include "MapleFreeRTOS1000.h"
+#include "MapleFreeRTOS1000_pp.h"
 
 simple7Seg *simple7Seg:: instantiate(int D1, int D2, int D3, int D4, int aa, int bb, int cc, int dd, int ee, int ff, int gg, int decimalpoint)
 {
     return new simple7SegImpl(D1,D2,D3, D4, aa,bb,cc,dd,ee,ff,gg,decimalpoint);
 }
+
+void simple7SegImpl::trampoline(void *a)
+{
+    simple7SegImpl *instance=(simple7SegImpl *)a;
+    instance->run();
+}
+
 /**
  */
  simple7SegImpl::simple7SegImpl(int D1, int D2, int D3, int D4, int aa, int bb, int cc, int dd, int ee, int ff, int gg, int decimalpoint)
@@ -18,18 +27,35 @@ simple7Seg *simple7Seg:: instantiate(int D1, int D2, int D3, int D4, int aa, int
      
      _pins[0]=aa;_pins[1]=bb;_pins[2]=cc;_pins[3]=dd;
      _pins[4]=ee;_pins[5]=ff;_pins[6]=gg,_pins[7]= decimalpoint;
-     for(int i=0;i<3;i++)
+     for(int i=0;i<4;i++)
      {
          pinMode(_digits[i],OUTPUT);
          digitalWrite(_digits[i],1);
+         _value[i]=i;
      }
       for(int i=0;i<8;i++)
       {
          pinMode(_pins[i],OUTPUT);
          digitalWrite(_pins[i],0);
       }
+     
+      xTaskCreate( simple7SegImpl::trampoline, "7seg", 250, this, 12, NULL );   
+     
  }
- 
+ /**
+  */
+ void simple7SegImpl::run()
+ {
+     while(1)
+     {
+        xDelay(20);
+        for(int i=0;i<4;i++)
+        {
+            setNumber(i,_value[i]);
+        }
+        
+     }
+ }
 #define MAPPED(a,b,c,d,  e,f,g) (a+(b<<1)+(c<<2)+(d<<3)+(e<<4)+(f<<5)+(g<<6))
  
  uint16_t numberTable[16]=
@@ -70,8 +96,8 @@ simple7Seg *simple7Seg:: instantiate(int D1, int D2, int D3, int D4, int aa, int
          digitalWrite(_pins[i],x&1);
          x>>=1;
      }     
-     delay(20);
-     //digitalWrite(_digits[digit],1);
+     xDelay(3);
+     digitalWrite(_digits[digit],1);
      return true;
  }
  
