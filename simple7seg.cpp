@@ -5,6 +5,28 @@
 #include "MapleFreeRTOS1000.h"
 #include "MapleFreeRTOS1000_pp.h"
 
+bool simple7SegImpl::setSignificantDigits(int j)
+{
+    _significant=j;
+    _mul=1;
+    for(int i=0;i<j;i++)
+        _mul*=10;
+    return true;
+}
+
+bool simple7SegImpl::printAsFloat(float f)
+{
+    int v=(int)(f*_mul);
+    for(int i=0;i<4;i++)
+    {
+        int digit=v%10;
+        _staging[i]=digit;
+        v/=10;
+    }
+    _update=true;
+    return true;
+}
+
 simple7Seg *simple7Seg:: instantiate(int D1, int D2, int D3, int D4, int aa, int bb, int cc, int dd, int ee, int ff, int gg, int decimalpoint)
 {
     return new simple7SegImpl(D1,D2,D3, D4, aa,bb,cc,dd,ee,ff,gg,decimalpoint);
@@ -32,15 +54,16 @@ void simple7SegImpl::trampoline(void *a)
          pinMode(_digits[i],OUTPUT);
          digitalWrite(_digits[i],1);
          _value[i]=i;
+         _staging[i]=i;
      }
       for(int i=0;i<8;i++)
       {
          pinMode(_pins[i],OUTPUT);
          digitalWrite(_pins[i],0);
       }
-     
+      _update=false;
       xTaskCreate( simple7SegImpl::trampoline, "7seg", 250, this, 12, NULL );   
-     
+     setSignificantDigits(0);
  }
  /**
   */
@@ -48,7 +71,12 @@ void simple7SegImpl::trampoline(void *a)
  {
      while(1)
      {
-        xDelay(20);
+        if(_update)
+        {
+            for(int i=0;i<4;i++) _value[i]=_staging[i];
+            _update=false;
+        }
+        xDelay(10);
         for(int i=0;i<4;i++)
         {
             setNumber(i,_value[i]);
@@ -88,7 +116,7 @@ void simple7SegImpl::trampoline(void *a)
  */
  bool simple7SegImpl::setNumber(int digit, int value)
  {
-     digitalWrite(_digits[digit],0);
+     digitalWrite(_digits[digit],0); // power on
      //
      int x=numberTable[value];
      for(int i=0;i<8;i++)
@@ -96,8 +124,11 @@ void simple7SegImpl::trampoline(void *a)
          digitalWrite(_pins[i],x&1);
          x>>=1;
      }     
+     digitalWrite(_pins[7],(digit==_significant));
+         
      xDelay(3);
-     digitalWrite(_digits[digit],1);
+     digitalWrite(_digits[digit],1); // power off
+     xDelay(1);
      return true;
  }
  
