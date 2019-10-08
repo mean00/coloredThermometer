@@ -43,6 +43,7 @@ include_directories(MapleFreeRTOS1000//)
 include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
 ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
+ADD_SUBDIRECTORY(simple7seg/)
 
 #include_directories(SevSeg/src)
 
@@ -56,11 +57,11 @@ ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
 #ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp simple7seg.cpp
+                SRCS myCode.cpp 
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS ${libPrefix}simple7seg)
 
 
 # EOF
