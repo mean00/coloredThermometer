@@ -44,7 +44,6 @@ include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
 ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
 ADD_SUBDIRECTORY(simple7seg/)
-ADD_SUBDIRECTORY(TinyDHT/)
 
 #include_directories(SevSeg/src)
 
@@ -62,7 +61,7 @@ generate_arduino_firmware(ColoredThermo
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS ${libPrefix}simple7seg ${libPrefix}TinyDHT)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS ${libPrefix}simple7seg)
 
 
 # EOF
