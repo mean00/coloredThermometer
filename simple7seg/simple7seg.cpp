@@ -100,7 +100,7 @@ void simple7SegImpl::trampoline(void *a)
      MAPPED(0,  0,  1,  1,    1  ,  1 ,  1), // 6
      MAPPED(1,  1,  1,  0,    0  ,  0 ,  0), // 7
      MAPPED(1,  1,  1,  1,    1  ,  1 ,  1), // 8
-     MAPPED(1,  1,  1,  1,    0  ,  0 ,  1), // 9
+     MAPPED(1,  1,  1,  1,    0  ,  1 ,  1), // 9
      
      
      MAPPED(0,  1,  1,  0,    0  ,  0 ,  0), // 10 x0A
