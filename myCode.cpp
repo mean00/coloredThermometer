@@ -16,9 +16,11 @@ simple7Seg *sevenSeg;
 
 void mySetup() 
 {
+    
+    
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
 
-    sevenSeg=simple7Seg::instantiate(PB12,PB13,PB14,PB15,     PA8,PA10,PB11,PB10, PB6,PA9,PB8,PB7);    
+    sevenSeg=simple7Seg::instantiate(PB12,PB13,PB14,PB15,     PA8,PA10,PB11,PB10, PA4,PA9,PB8,PA3);    
     sevenSeg->setSignificantDigits(2); // xy.zt
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     vTaskStartScheduler();      
@@ -33,9 +35,11 @@ void MainTask( void *a )
 }
 void myLoop() 
 { 
-    static float f=00.0;
     
-    sevenSeg->printAsFloat(f);
-    f+=12.34;
-    xDelay(2000);    
+    static float temp=12.34;
+    
+    sevenSeg->printAsFloat((float)temp);
+    temp+=9.99;
+    
+    xDelay(1000);    
 }
