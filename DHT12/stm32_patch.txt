@@ -1,0 +1,1 @@
+not usable as is for the STM32F1/STM32Duino due to _wire->begin(sda,scl) that does not exist
