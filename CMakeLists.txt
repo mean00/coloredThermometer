@@ -37,9 +37,13 @@ SET(ARDUINO_UPLOAD_METHOD DFUUpload)
 set(ARDUINO_CPUMENU .menu.cpu.${ARDUINO_CPU})
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 
- 
+# DHT12
+
+ADD_DEFINITIONS(-DSDA=PB7 -DSCL=PB6)
+
 include_directories(MapleFreeRTOS1000//Source/include)
 include_directories(MapleFreeRTOS1000//)
+include_directories(DHT12)
 include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
 ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
@@ -57,7 +61,7 @@ ADD_SUBDIRECTORY(simple7seg/)
 #ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp 
+                SRCS myCode.cpp DHT12/DHT12.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
