@@ -1,3 +1,5 @@
+/**
+ */
 #include "SPI.h"
 #include "Wire.h"
 #include "MapleFreeRTOS1000.h"
@@ -6,7 +8,9 @@
 #include "tempDaemon.h"
 
 DHT12  *dht=NULL;
-
+/**
+ * 
+ */
 TemperatureDaemon::TemperatureDaemon()
 {
     for(int i=0;i<TEMP_SAMPLING_COUNT;i++)
@@ -14,12 +18,20 @@ TemperatureDaemon::TemperatureDaemon()
     _index=0;
     _first=true;
 }
-
+/**
+ * 
+ * @param a
+ */
 void TemperatureDaemon::trampoline(void *a)
 {
     TemperatureDaemon *instance=(TemperatureDaemon *)a;
     instance->run();
 }
+/**
+ * 
+ * @param dhtAdr
+ * @return 
+ */
 bool TemperatureDaemon::init(int dhtAdr)
 {
     dht=new DHT12();
@@ -27,13 +39,18 @@ bool TemperatureDaemon::init(int dhtAdr)
     xTaskCreate( TemperatureDaemon::trampoline, "Temp", 250, this, 12, NULL );   
     return true;
 }
-
+/**
+ * 
+ * @return 
+ */
 float   TemperatureDaemon::getTemp()
 {
     return _temp;
 }
 
-
+/**
+ * 
+ */
 void   TemperatureDaemon::run()
 {
     
@@ -56,3 +73,5 @@ void   TemperatureDaemon::run()
         xDelay(500);
     }
 };
+
+// EOF

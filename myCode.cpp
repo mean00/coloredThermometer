@@ -2,7 +2,6 @@
 #include "Wire.h"
 #include "MapleFreeRTOS1000.h"
 #include "MapleFreeRTOS1000_pp.h"
-#include "DHT12.h"
 #include "simple7seg.h"
 #include "tempDaemon.h"
 
@@ -15,7 +14,10 @@ void myLoop() ;
 
 simple7Seg *sevenSeg; 
 TemperatureDaemon *tempDaemon;
-
+static float temp=20.00;
+/**
+ * 
+ */
 void mySetup() 
 {
     
@@ -25,8 +27,11 @@ void mySetup()
     sevenSeg->setSignificantDigits(2); // xy.zt
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     vTaskStartScheduler();      
-
 }
+/**
+ * 
+ * @param a
+ */
 void MainTask( void *a )
 {    
     tempDaemon=new TemperatureDaemon;
@@ -37,12 +42,13 @@ void MainTask( void *a )
         myLoop();
     }
 }
+/**
+ * 
+ */
 void myLoop() 
 { 
-    //__STM32F1__
-    static float temp=98.59;
     temp=tempDaemon->getTemp();    
     sevenSeg->printAsFloat((float)temp);
-    
     xDelay(500);    
 }
+// EOF
