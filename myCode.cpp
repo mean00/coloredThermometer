@@ -4,6 +4,7 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "DHT12.h"
 #include "simple7seg.h"
+#include "tempDaemon.h"
 
 void MainTask( void *a );
 void myLoop() ;
@@ -13,12 +14,11 @@ void myLoop() ;
 #define DSO_MAIN_TASK_PRIORITY 10
 
 simple7Seg *sevenSeg; 
-DHT12  *dht;
+TemperatureDaemon *tempDaemon;
+
 void mySetup() 
 {
     
-    dht=new DHT12();
-    dht->begin();
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
 
     sevenSeg=simple7Seg::instantiate(PB12,PB13,PB14,PB15,     PA8,PA10,PB11,PB10, PA4,PA9,PB8,PA3);    
@@ -29,6 +29,9 @@ void mySetup()
 }
 void MainTask( void *a )
 {    
+    tempDaemon=new TemperatureDaemon;
+    tempDaemon->init(0x5c);
+    
     while(1)
     {
         myLoop();
@@ -38,10 +41,8 @@ void myLoop()
 { 
     //__STM32F1__
     static float temp=98.59;
-    temp=dht->readTemperature();
-    temp-=2; // cheap calibration ....
+    temp=tempDaemon->getTemp();    
     sevenSeg->printAsFloat((float)temp);
-  //  temp+=9.99;
     
-    xDelay(1000);    
+    xDelay(500);    
 }
