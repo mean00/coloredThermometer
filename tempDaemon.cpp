@@ -69,7 +69,10 @@ void   TemperatureDaemon::run()
         for(int i=0;i<TEMP_SAMPLING_COUNT;i++)
             avg+=_measure[i];
         avg=avg/TEMP_SAMPLING_COUNT;
-        _temp=avg;
+        
+        // only keep XX.y format, more accurate is pointless
+        int round=(avg*10+5);
+        _temp=(float)round/10.-1.;
         xDelay(500);
     }
 };

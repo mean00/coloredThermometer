@@ -24,7 +24,7 @@ void mySetup()
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
 
     sevenSeg=simple7Seg::instantiate(PB12,PB13,PB14,PB15,     PA8,PA10,PB11,PB10, PA4,PA9,PB8,PA3);    
-    sevenSeg->setSignificantDigits(2); // xy.zt
+    sevenSeg->setSignificantDigits(2,1); // xy.z
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     vTaskStartScheduler();      
 }

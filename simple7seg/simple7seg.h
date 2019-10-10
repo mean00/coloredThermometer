@@ -12,5 +12,5 @@ public:
         
         virtual bool setNumber(int digit, int value)=0;
         virtual bool printAsFloat(float f)=0;
-        virtual bool setSignificantDigits(int j)=0;
+        virtual bool setSignificantDigits(int nteger,int decimal)=0;
 };

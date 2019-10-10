@@ -5,11 +5,12 @@
 #include "MapleFreeRTOS1000.h"
 #include "MapleFreeRTOS1000_pp.h"
 
-bool simple7SegImpl::setSignificantDigits(int j)
+bool simple7SegImpl::setSignificantDigits(int teger, int decimal)
 {
-    _significant=j;
+    _nteger=teger;
+    _decimal=decimal;
     _mul=1;
-    for(int i=0;i<j;i++)
+    for(int i=0;i<_decimal;i++)
         _mul*=10;
     return true;
 }
@@ -63,7 +64,7 @@ void simple7SegImpl::trampoline(void *a)
       }
       _update=false;
       xTaskCreate( simple7SegImpl::trampoline, "7seg", 250, this, 12, NULL );   
-     setSignificantDigits(0);
+     setSignificantDigits(2,1   ); // 22.1
  }
  /**
   */
@@ -77,7 +78,8 @@ void simple7SegImpl::trampoline(void *a)
             _update=false;
         }
         xDelay(10);
-        for(int i=0;i<4;i++)
+        int total= _nteger+    _decimal;
+        for(int i=0;i<total;i++)
         {
             setNumber(i,_value[i]);
         }
@@ -124,7 +126,7 @@ void simple7SegImpl::trampoline(void *a)
          digitalWrite(_pins[i],x&1);
          x>>=1;
      }     
-     digitalWrite(_pins[7],(digit==_significant));
+     digitalWrite(_pins[7],(digit==_decimal));
          
      xDelay(3);
      digitalWrite(_digits[digit],1); // power off
