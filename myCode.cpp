@@ -4,6 +4,7 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "simple7seg.h"
 #include "tempDaemon.h"
+#include "colorTemp.h"
 
 void MainTask( void *a );
 void myLoop() ;
@@ -14,6 +15,7 @@ void myLoop() ;
 
 simple7Seg *sevenSeg; 
 TemperatureDaemon *tempDaemon;
+ColorTemp *colors;
 static float temp=20.00;
 /**
  * 
@@ -36,6 +38,8 @@ void MainTask( void *a )
 {    
     tempDaemon=new TemperatureDaemon;
     tempDaemon->init(0x5c);
+    colors=new ColorTemp();
+    
     
     while(1)
     {
@@ -49,6 +53,7 @@ void myLoop()
 { 
     temp=tempDaemon->getTemp();    
     sevenSeg->printAsFloat((float)temp);
+    colors->setColor(temp);
     xDelay(500);    
 }
 // EOF
