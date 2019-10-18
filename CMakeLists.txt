@@ -39,7 +39,7 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 
 # DHT12
 
-ADD_DEFINITIONS(-DSDA=PB7 -DSCL=PB6)
+##ADD_DEFINITIONS(-DSDA=PB7 -DSCL=PB6)
 
 include_directories(MapleFreeRTOS1000//Source/include)
 include_directories(MapleFreeRTOS1000//)

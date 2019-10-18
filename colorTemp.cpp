@@ -31,9 +31,14 @@ const uint32_t tempColors[NUM_LEDS]={
 
 
 void ColorTemp::wheel(int ledPosition, bool onoff) 
-{
+{/*
     if(onoff) strip->setPixelColor(ledPosition,tempColors[NUM_LEDS-ledPosition]);
     else   strip->setPixelColor(ledPosition,0);        
+  * */
+    uint32_t col=tempColors[ledPosition];
+    for(int i=0;i<ledPosition;i++) strip->setPixelColor(i,col);   
+    for(int i=ledPosition;i<NUM_LEDS;i++) strip->setPixelColor(i,0);      
+
 }
 
 
@@ -63,7 +68,6 @@ void    ColorTemp::setColor(float temp)
     if(temp>=tempMax) temp=tempMax;
     
     float dex=(float)(NUM_LEDS)*(temp-tempMin)/(tempMax-tempMin);
-    for(int i=0;i<=dex;i++) wheel(i,true);
-    for(int i=dex+1;i<NUM_LEDS;i++) wheel(i,false);
+    wheel(dex,false);
     strip->show();
 }

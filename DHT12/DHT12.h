@@ -56,7 +56,7 @@
 	#define DEBUG_PRINTLN(...) {}
 #endif
 
-#ifndef __AVR
+#if !defined(__AVR) && !defined(__STM32F1__) && !defined(TEENSYDUINO)
 	#define DHTLIB_TIMEOUT 10000  // should be approx. clock/40000
 #else
 	#ifndef F_CPU
@@ -92,7 +92,8 @@ public:
 	 * @param oneWire select if is oneWire of i2c
 	 */
 	DHT12(uint8_t addressORPin, bool oneWire = false);
-#ifndef __AVR
+//#ifndef __AVR
+#if !defined(__AVR) && !defined(__STM32F1__) && !defined(TEENSYDUINO)
 	/**
 	 * Additional parameter non tested for Arduino, Arduino very slow on software i2c
 	 */
@@ -167,6 +168,12 @@ private:
 	uint8_t data[5];
 	uint8_t _address = DEFAULT_DHT12_ADDRESS
 	;
+	#ifdef __STM32F1__
+	#ifndef SDA
+	#define DEFAULT_SDA PB7
+	#define DEFAULT_SCL PB6
+	#endif
+	#endif
 	uint8_t _sda = DEFAULT_SDA
 	;
 	uint8_t _scl = DEFAULT_SCL
@@ -176,7 +183,7 @@ private:
 	ReadStatus _lastresult = NONE;
 
 	uint8_t _pin = 3;
-#ifdef __AVR
+#if !defined(__AVR) && !defined(__STM32F1__) && !defined(TEENSYDUINO)
 	// Use direct GPIO access on an 8-bit AVR so keep track of the port and bitmask
 	// for the digital pin connected to the DHT.  Other platforms will use digitalRead.
 	uint8_t _bit = 0, _port = 0;
