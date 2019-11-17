@@ -6,8 +6,8 @@
 #include "WSNumber.h"
 #include "WS2812B.h"
 
-void rainbowCycle(uint8_t wait) ;
-void draw(uint32_t bitField, uint32_t finalColor);
+void rainbowCycle(uint8_t wait,WS2812B &strip) ;
+void draw(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
 void MainTask( void *a );
 void myLoop() ;
 uint32_t Wheel(byte WheelPos) ;
@@ -19,7 +19,7 @@ WSNumber *digits;
 
 TemperatureDaemon *tempDaemon;
 static float temp=20.00;
-WS2812B strip(NUM_LEDS);
+WS2812B *strip=NULL;
 
 /**
  * 
@@ -29,6 +29,10 @@ void mySetup()
     
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
     digits=new WSNumber();   
+    tempDaemon=new TemperatureDaemon;
+    tempDaemon->init(0x5c);
+    strip=new WS2812B(NUM_LEDS);
+    strip->begin();
     digits->setValue(floor(temp+0.5));
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     vTaskStartScheduler();      
@@ -39,9 +43,8 @@ void mySetup()
  */
 void MainTask( void *a )
 {    
-    tempDaemon=new TemperatureDaemon;
-    tempDaemon->init(0x5c);
-    rainbowCycle(3);
+    interrupts();
+    rainbowCycle(3,*strip);
 
     while(1)
     {
@@ -57,13 +60,18 @@ void myLoop()
     digits->setValue(floor(temp+0.5));
     uint32_t full=digits->getBitfield();
     uint32_t finalColor=0x2F33;
-    draw(full,finalColor);
+    draw(full,finalColor,*strip);
     xDelay(2000);
 
 }
 
-
-void draw(uint32_t bitField, uint32_t finalColor)
+/**
+ * 
+ * @param bitField
+ * @param finalColor
+ * @param strip
+ */
+void draw(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
 {
   int wait=20;
 
@@ -125,7 +133,7 @@ void draw(uint32_t bitField, uint32_t finalColor)
 
 
 // Slightly different, this makes the rainbow equally distributed throughout
-void rainbowCycle(uint8_t wait) 
+void rainbowCycle(uint8_t wait,WS2812B &strip) 
 {
   uint16_t i, j;
 
@@ -140,23 +148,23 @@ void rainbowCycle(uint8_t wait)
   }
 }
 
-uint32_t Wheel(byte WheelPos) 
+uint32_t Wheel(byte WheelPos )
 {
   if(WheelPos < 85) 
   {
-    return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+    return WS2812B::Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   } 
   else 
   {
     if(WheelPos < 170) 
     {
      WheelPos -= 85;
-     return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+     return WS2812B::Color(255 - WheelPos * 3, 0, WheelPos * 3);
     } 
     else 
     {
      WheelPos -= 170;
-     return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+     return WS2812B::Color(0, WheelPos * 3, 255 - WheelPos * 3);
     }
   }
 }

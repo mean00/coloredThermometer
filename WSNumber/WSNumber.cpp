@@ -4,8 +4,8 @@
 
 WSNumber::WSNumber()
 {
-   _high=new WSDigit(true,0);
-   _low=new WSDigit(false,15);
+   _low=new WSDigit(true,0);
+   _high=new WSDigit(false,15);
    _bitfield=0;
    _value=0;
 }

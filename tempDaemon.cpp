@@ -46,7 +46,7 @@ bool TemperatureDaemon::init(int dhtAdr)
 float   TemperatureDaemon::getTemp()
 {
 #if 1
-    return 18.1;
+    return 23;
 #else    
     return _temp;
 #endif
