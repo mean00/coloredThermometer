@@ -62,11 +62,11 @@ ADD_SUBDIRECTORY(WS2812/)
 #ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp  WSDigit.cpp WSNumber.cpp
+                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp  
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812 ${libPrefix}WSNumber)
 
 
 # EOF
