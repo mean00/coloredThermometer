@@ -22,30 +22,21 @@
   See   <http://www.gnu.org/licenses/>.
   -----------------------------------------------------------------------------------------------*/
 
-/**
- * Mean00 :  
- * With CLK=72 MHZ/16
- *      '1' => 111000
- *      "0" => 110000
- * 
- */
-
-
-#include "WS2812.h"
+#include "WS2812B.h"
 #include "pins_arduino.h"
 #include "wiring_private.h"
 #include <SPI.h>
 
 
 // Constructor when n is the number of LEDs in the strip
-WS2812::WS2812(uint16_t number_of_leds) :
-  brightness(0), pixels(NULL)
+WS2812B::WS2812B(uint16_t number_of_leds) :
+  brightness(0), pixels(NULL),doubleBuffer(NULL),begun(false)
 {
   updateLength(number_of_leds);
 }
 
 
-WS2812::~WS2812() 
+WS2812B::~WS2812B() 
 {
   if(pixels)   
   {
@@ -54,29 +45,28 @@ WS2812::~WS2812()
   SPI.end();
 }
 
-void WS2812::begin(void) {
+void WS2812B::begin(void) {
 
 if (!begun)
 {
-  SPI.setClockDivider(SPI_CLOCK_DIV16);// need bit rate of 400nS but closest we can do @ 72Mhz is 444ns (which is within spec)
+  SPI.setClockDivider(SPI_CLOCK_DIV32);// need bit rate of 400nS but closest we can do @ 72Mhz is 444ns (which is within spec)
   SPI.begin();
   begun = true;
 }
 }
 
-void WS2812::updateLength(uint16_t n)
+void WS2812B::updateLength(uint16_t n)
 {
   if(doubleBuffer) 
   {
 	  free(doubleBuffer); 
   }
 
-  // 6 bits per actual bit => *6+2 preamble/postamble
-  
-  numBytes = n*6 + 2; 
+  numBytes = (n<<3) + n + 2; // 9 encoded bytes per pixel. 1 byte empty peamble to fix issue with SPI MOSI and on byte at the end to clear down MOSI 
+							// Note. (n<<3) +n is a fast way of doing n*9
   if((doubleBuffer = (uint8_t *)malloc(numBytes*2)))
   {
-        numLEDs = n;	 
+    numLEDs = n;	 
 	pixels = doubleBuffer;
 	// Only need to init the part of the double buffer which will be interacted with by the API e.g. setPixelColor
 	*pixels=0;//clear the preamble byte
@@ -90,7 +80,7 @@ void WS2812::updateLength(uint16_t n)
 }
 
 // Sends the current buffer to the leds
-void WS2812::show(void) 
+void WS2812B::show(void) 
 {
   SPI.dmaSendAsync(pixels,numBytes);// Start the DMA transfer of the current pixel buffer to the LEDs and return immediately.
 
@@ -110,105 +100,80 @@ void WS2812::show(void)
 	memcpy(pixels,doubleBuffer+numBytes,numBytes);	 // copy second buffer to first buffer 
   }	
 }
-/**
- * 
- * @param p
- */
-class bitpusher
-{
-public:
-        bitpusher(uint8_t *p)
-        {
-            buffer=p;
-            count=0;
-            current=0;
-        }
-        void pushBits(int bits6)
-        {
-            current<<=6;
-            current+=bits6;
-            count+=6;
-            if(count>=8)
-            {
-                count=count-8;
-                *buffer=current>>count;
-                buffer++;                
-            }
-        }
-        void finish()
-        {
-            int left=8-count;
-            if(left)
-            {
-                current<<=left;
-                *buffer=current;
-            }
-        }
-protected:
-    uint8_t *buffer;
-    int     count;
-    uint32_t current;
-    
-};
 
-void WS2812::setPixelColorRaw(uint16_t n, uint32_t c)
-{
-   uint8_t *bptr = pixels + n*3*6 +1;
-   bitpusher pusher(bptr);
-   
-   uint8_t m=0x800000; 
-   for(int i=0;i<24;i++)
-   {
-       if(c&m) pusher.pushBits(0x38);
-        else   pusher.pushBits(0x30);
-        m>>=1;
-   }
-   pusher.finish();
-}
 /*Sets a specific pixel to a specific r,g,b colour 
 * Because the pixels buffer contains the encoded bitstream, which is in triplets
 * the lookup table need to be used to find the correct pattern for each byte in the 3 byte sequence.
 */
-void WS2812::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b)
+void WS2812B::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b)
  {
-    uint32_t c=(r<<16)+(g<<8)+b;
-    setPixelColorRaw(n,c);
+   uint8_t *bptr = pixels + (n<<3) + n +1;
+   uint8_t *tPtr = (uint8_t *)encoderLookup + g*2 + g;// need to index 3 x g into the lookup
+   
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+
+   tPtr = (uint8_t *)encoderLookup + r*2 + r;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;   
+   
+   tPtr = (uint8_t *)encoderLookup + b*2 + b;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
  }
 
-void WS2812::setPixelColor(uint16_t n, uint32_t c)
+void WS2812B::setPixelColor(uint16_t n, uint32_t c)
   {
      uint8_t r,g,b;
    
     if(brightness) 
-    { 
+	{ 
       r = ((int)((uint8_t)(c >> 16)) * (int)brightness) >> 8;
       g = ((int)((uint8_t)(c >>  8)) * (int)brightness) >> 8;
       b = ((int)((uint8_t)c) * (int)brightness) >> 8;
-    }
+	}
 	else
-    {
+	{
       r = (uint8_t)(c >> 16),
       g = (uint8_t)(c >>  8),
-      b = (uint8_t)c;		
-    }
-    uint32_t c2=(r<<16)+(g<<8)+b;
-    setPixelColorRaw(n,c2);
+	  b = (uint8_t)c;		
+	}
+	
+   uint8_t *bptr = pixels + (n<<3) + n +1;
+   uint8_t *tPtr = (uint8_t *)encoderLookup + g*2 + g;// need to index 3 x g into the lookup
+   
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+
+   tPtr = (uint8_t *)encoderLookup + r*2 + r;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;   
+   
+   tPtr = (uint8_t *)encoderLookup + b*2 + b;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
+   *bptr++ = *tPtr++;
 }
 
 // Convert separate R,G,B into packed 32-bit RGB color.
 // Packed format is always RGB, regardless of LED strand color order.
-uint32_t WS2812::Color(uint8_t r, uint8_t g, uint8_t b) {
+uint32_t WS2812B::Color(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
 // Convert separate R,G,B,W into packed 32-bit WRGB color.
 // Packed format is always WRGB, regardless of LED strand color order.
-uint32_t WS2812::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+uint32_t WS2812B::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
   return ((uint32_t)w << 24) | ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b;
 }
 
 
-uint16_t WS2812::numPixels(void) const {
+uint16_t WS2812B::numPixels(void) const {
   return numLEDs;
 }
 
@@ -224,7 +189,7 @@ uint16_t WS2812::numPixels(void) const {
 // the limited number of steps (quantization) in the old data will be
 // quite visible in the re-scaled version.  For a non-destructive
 // change, you'll need to re-render the full strip data.  C'est la vie.
-void WS2812::setBrightness(uint8_t b) {
+void WS2812B::setBrightness(uint8_t b) {
   // Stored brightness value is different than what's passed.
   // This simplifies the actual scaling math later, allowing a fast
   // 8x8-bit multiply and taking the MSB.  'brightness' is a uint8_t,
@@ -242,35 +207,32 @@ void WS2812::setBrightness(uint8_t b) {
     else if(b == 255) scale = 65535 / oldBrightness;
     else scale = (((uint16_t)newBrightness << 8) - 1) / oldBrightness;
     for(uint16_t i=0; i<numBytes; i++) 
-    {
-            c      = *ptr;
-            *ptr++ = (c * scale) >> 8;
+	{
+      c      = *ptr;
+      *ptr++ = (c * scale) >> 8;
     }
     brightness = newBrightness;
   }
 }
 
 //Return the brightness value
-uint8_t WS2812::getBrightness(void) const {
+uint8_t WS2812B::getBrightness(void) const {
   return brightness - 1;
 }
 
 /*
 *	Sets the encoded pixel data to turn all the LEDs off.
 */
-void WS2812::clear() 
+void WS2812B::clear() 
 {
-	uint8_t * bptr= pixels+1;// Note first byte in the buffer is a preamble and is always zero. hence the +1
+	uint8_t * bptr= pixels+1;// Note first byte in the buffer is a preable and is always zero. hence the +1
 	uint8_t *tPtr;
 
-	for(int i=0;i< (numLEDs *6);i++)
+	for(int i=0;i< (numLEDs *3);i++)
 	{
 	   tPtr = (uint8_t *)encoderLookup;
    	   *bptr++ = *tPtr++;
 	   *bptr++ = *tPtr++;
 	   *bptr++ = *tPtr++;	
-           *bptr++ = *tPtr++;	
-           *bptr++ = *tPtr++;	
-           *bptr++ = *tPtr++;	
 	}
 }

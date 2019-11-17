@@ -45,7 +45,11 @@ bool TemperatureDaemon::init(int dhtAdr)
  */
 float   TemperatureDaemon::getTemp()
 {
+#if 1
+    return 18.1;
+#else    
     return _temp;
+#endif
 }
 
 /**
@@ -53,7 +57,10 @@ float   TemperatureDaemon::getTemp()
  */
 void   TemperatureDaemon::run()
 {
-    
+    while(1)
+    {
+        xDelay(1000);
+    }
     while(1)
     {
         float f=dht->readTemperature(false,true);

@@ -8,7 +8,7 @@ public:
                 TemperatureDaemon();
         bool    init(int dhtAdress);
         float   getTemp();
-static  void trampoline(void *);
+static  void    trampoline(void *);
 
 protected:
         void  run();

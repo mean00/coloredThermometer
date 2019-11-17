@@ -44,12 +44,11 @@ SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 include_directories(MapleFreeRTOS1000//Source/include)
 include_directories(MapleFreeRTOS1000//)
 include_directories(DHT12)
-include_directories(WS1812)
+include_directories(WS2812)
 include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
 ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
-ADD_SUBDIRECTORY(simple7seg/)
-ADD_SUBDIRECTORY(WS1812/)
+ADD_SUBDIRECTORY(WS2812/)
 
 #include_directories(SevSeg/src)
 
@@ -63,11 +62,11 @@ ADD_SUBDIRECTORY(WS1812/)
 #ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp colorTemp.cpp
+                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp  WSDigit.cpp WSNumber.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS ${libPrefix}simple7seg ${libPrefix}WS1812)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812)
 
 
 # EOF
