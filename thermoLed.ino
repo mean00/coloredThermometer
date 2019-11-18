@@ -1,3 +1,4 @@
+#include "USBComposite.h"
 extern void mySetup();
 extern void myLoop();
 

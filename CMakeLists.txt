@@ -37,7 +37,10 @@ SET(ARDUINO_UPLOAD_METHOD DFUUpload)
 set(ARDUINO_CPUMENU .menu.cpu.${ARDUINO_CPU})
 SET(libPrefix ${ARDUINO_DEFAULT_BOARD}_)
 
-# DHT12
+# USB_Composite
+ADD_DEFINITIONS(-DUSB_EP_TYPE_ISO=USB_EP_T_ISO)
+SET(USB_HID ${CMAKE_CURRENT_SOURCE_DIR}/USBComposite)
+include_directories(${USB_HID})
 
 ##ADD_DEFINITIONS(-DSDA=PB7 -DSCL=PB6)
 
@@ -45,10 +48,12 @@ include_directories(MapleFreeRTOS1000//Source/include)
 include_directories(MapleFreeRTOS1000//)
 include_directories(DHT12)
 include_directories(WS2812)
+include_directories(WSNumber)
 include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
-ADD_SUBDIRECTORY(MapleFreeRTOS1000/)
-ADD_SUBDIRECTORY(WS2812/)
+ADD_SUBDIRECTORY(MapleFreeRTOS1000)
+ADD_SUBDIRECTORY(WS2812)
+ADD_SUBDIRECTORY(WSNumber)
 
 #include_directories(SevSeg/src)
 
@@ -62,11 +67,11 @@ ADD_SUBDIRECTORY(WS2812/)
 #ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp   WSDisplay.cpp
+                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp   WSDisplay.cpp 
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812 ${libPrefix}WSNumber)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812 ${libPrefix}WSNumber ${libPrefix}USBComposite)
 
 
 # EOF

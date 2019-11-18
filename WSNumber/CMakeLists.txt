@@ -1,5 +1,5 @@
 
-SET(SRCS SDigit.cpp  WSNumber.cpp.cpp)
+SET(SRCS WSDigit.cpp  WSNumber.cpp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 generate_arduino_library(${libPrefix}WSNumber 
                             SRCS ${SRCS}

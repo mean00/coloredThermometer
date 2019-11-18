@@ -49,9 +49,10 @@ void MainTask( void *a )
 void myLoop() 
 { 
  //   temp=tempDaemon->getTemp();    
-    temp=23;
+    
     _wsDisplay->setTemp(temp);
     _wsDisplay->snake();
+    temp+=1.0;
     xDelay(2000);
 }
 
