@@ -4,8 +4,7 @@
  * (c) mean 2019 fixounet@free.fr
  ****************************************************/
 #pragma once
-#include "Wire.h"
-#include "SPI.h"
+#include "Arduino.h"
 
 // Sampling Queue
 
