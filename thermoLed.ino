@@ -1,3 +1,5 @@
+#include "Wire.h"
+#include "SPI.h"
 #include "USBComposite.h"
 extern void mySetup();
 extern void myLoop();

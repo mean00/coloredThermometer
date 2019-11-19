@@ -46,32 +46,23 @@ include_directories(${USB_HID})
 
 include_directories(MapleFreeRTOS1000//Source/include)
 include_directories(MapleFreeRTOS1000//)
-include_directories(DHT12)
 include_directories(WS2812)
 include_directories(WSNumber)
+include_directories(NTC)
 include_directories(.)
 link_directories( ${CUSTOM_LIB_DIR})
 ADD_SUBDIRECTORY(MapleFreeRTOS1000)
 ADD_SUBDIRECTORY(WS2812)
 ADD_SUBDIRECTORY(WSNumber)
+ADD_SUBDIRECTORY(NTC)
 
-#include_directories(SevSeg/src)
-
-#generate_arduino_library( simpler_INA219
-                        #SRCS  simpler_INA219/simpler_INA219.cpp
-                        #BOARD ${ARDUINO_DEFAULT_BOARD})
-
-#INCLUDE_DIRECTORIES(simpler_INA219)
-
-# This reduces size by 10% or so
-#ADD_DEFINITIONS("-ffunction-sections -fdata-sections ")
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp DHT12/DHT12.cpp tempDaemon.cpp   WSDisplay.cpp 
+                SRCS myCode.cpp  tempDaemon.cpp   WSDisplay.cpp 
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
-TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812 ${libPrefix}WSNumber ${libPrefix}USBComposite)
+TARGET_LINK_LIBRARIES( ColoredThermo  ${libPrefix}FreeRTOS  ${libPrefix}WS2812 ${libPrefix}WSNumber ${libPrefix}NTC ${libPrefix}USBComposite)
 
 
 # EOF

@@ -4,9 +4,6 @@
 [submodule "MapleFreeRTOS1000"]
 	path = MapleFreeRTOS1000
 	url = https://github.com/mean00/MapleFreeRTOS1000.git
-[submodule "DHT12"]
-	path = DHT12
-	url = https://github.com/xreef/DHT12_sensor_library.git
 [submodule "USBComposite"]
 	path = USBComposite
 	url = https://github.com/arpruss/USBComposite_stm32f1.git
