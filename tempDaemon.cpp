@@ -5,7 +5,8 @@
 #include "MapleFreeRTOS1000.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "tempDaemon.h"
-
+#include "NTC.h"
+NTC *ntc;
 /**
  * 
  */
@@ -28,6 +29,7 @@ void TemperatureDaemon::trampoline(void *a)
  */
 bool TemperatureDaemon::init()
 {
+    ntc=new  NTC(PA0, -3950,100,220);
     xTaskCreate( TemperatureDaemon::trampoline, "Temp", 250, this, 12, NULL );   
     return true;
 }
@@ -37,11 +39,7 @@ bool TemperatureDaemon::init()
  */
 float   TemperatureDaemon::getTemp()
 {
-#if 1
-    return 23;
-#else    
     return _temp;
-#endif
 }
 
 /**
@@ -52,6 +50,7 @@ void   TemperatureDaemon::run()
     while(1)
     {
         xDelay(1000);
+        ntc->getTemperature(_temp); // this should be fairly atomic
     }
    
 };

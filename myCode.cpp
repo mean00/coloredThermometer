@@ -25,9 +25,9 @@ void mySetup()
 {    
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
     interrupts();    
-  //  tempDaemon=new TemperatureDaemon;
-  //  tempDaemon->init(0x5c);
-    _wsDisplay=new WSDisplay;
+    tempDaemon=new TemperatureDaemon;  
+    tempDaemon->init();
+    _wsDisplay=new WSDisplay;      
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     vTaskStartScheduler();      
 }
@@ -48,12 +48,12 @@ void MainTask( void *a )
  */
 void myLoop() 
 { 
- //   temp=tempDaemon->getTemp();    
-    
+    temp=tempDaemon->getTemp();        
     _wsDisplay->setTemp(temp);
     _wsDisplay->snake();
-    temp+=1.0;
-    xDelay(2000);
+    _wsDisplay->rainbow();
+    //_wsDisplay->disolve();
+//    xDelay(2000);
 }
 
 // EOF
