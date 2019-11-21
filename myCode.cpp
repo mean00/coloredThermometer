@@ -37,7 +37,7 @@ void mySetup()
  */
 void MainTask( void *a )
 {    
-    _wsDisplay->banner();
+    //_wsDisplay->banner();
     while(1)
     {
         myLoop();
@@ -50,8 +50,8 @@ void myLoop()
 { 
     temp=tempDaemon->getTemp();        
     _wsDisplay->setTemp(temp);
-    _wsDisplay->snake();
-    _wsDisplay->rainbow();
+    //_wsDisplay->snake();
+    _wsDisplay->breath();
     //_wsDisplay->disolve();
 //    xDelay(2000);
 }

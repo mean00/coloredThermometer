@@ -38,12 +38,12 @@ void    WSDisplay::disolve(void)
 
 }
 
-void    WSDisplay::rainbow(void)
+void    WSDisplay::breath(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
     uint32_t finalColor=0x2F33;
-    rainbowInternal(full,finalColor,*_strip);
+    breathInternal(full,finalColor,*_strip);
 
 }
 /**
@@ -195,20 +195,59 @@ void WSDisplay::disolveInternal(uint32_t bitField, uint32_t finalColor,WS2812B &
  * @param finalColor
  * @param strip
  */
-void WSDisplay::rainbowInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
+static uint8_t coefs[256];
+
+static void breathFactor(int minValue)
 {
-  int wait=7;
+    static float fcoefs[256];
+    for(int i=0;i<256;i++)
+        {
+            float angle=1*M_PI/2.+(2.*M_PI*i)/255;
+            fcoefs[i]=exp(sin(angle));
+        }
+  
+  float min=256*256;
+  float max=0;
+  for(int i=0;i<256;i++)
+  {
+      if(fcoefs[i]<min) min=fcoefs[i];
+      if(fcoefs[i]>max) max=fcoefs[i];
+  }
+  max=(255-minValue)/(max-min);
+  for(int i=0;i<256;i++)
+  {
+      float val=fcoefs[i]-min;
+      val=val*max;
+      coefs[i]=minValue+(int)val;
+  }
+}
+/**
+ * 
+ * @param bitField
+ * @param finalColor
+ * @param strip
+ */
+void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
+{
+  int wait=20;
   int nbPixel=strip.numPixels();
   
-  int j;
-  for(int j=0;j<256*4;j+=4)
+  static bool done=false;
+  
+  if(!done)
   {
-      int k=127*(1+sin(j*3.14/2/256+1.5*3.14));
+             done=true;
+             breathFactor(33);
+  }
+  int j;
+  for(int j=0;j<256*4;j+=1)
+  {
+      int alpha=coefs[128+((int)j)&0xff];      
       for(int i=0;i<nbPixel;i++)
       {
           if(bitField & (1<<i)) 
           {              
-              setPixelColor(i,finalColor,k);
+              setPixelColor(i,finalColor,alpha);
           }
           else
           {
