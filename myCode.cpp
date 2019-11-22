@@ -50,7 +50,7 @@ void myLoop()
 { 
     temp=tempDaemon->getTemp();        
     _wsDisplay->setTemp(temp);
-    //_wsDisplay->snake();
+    _wsDisplay->snake();
     _wsDisplay->breath();
     //_wsDisplay->disolve();
 //    xDelay(2000);

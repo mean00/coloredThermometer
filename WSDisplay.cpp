@@ -2,6 +2,7 @@
 #include "MapleFreeRTOS1000.h"
 #include "MapleFreeRTOS1000_pp.h"
 #include "WSDisplay.h"
+#include "breath_table.h"
 /**
  */
 WSDisplay::WSDisplay()
@@ -63,11 +64,26 @@ void WSDisplay::setPixelColor(int index, uint32_t color,int alpha)
 {    
     setPixelColor(index, (color>>16)&0xff,(color>>8)&0xff,color&0xff,alpha);
 }
+void WSDisplay::setPixelColorAlpha16(int index, uint32_t color,int alpha)
+{    
+    setPixelColorAlpha16(index, (color>>16)&0xff,(color>>8)&0xff,color&0xff,alpha);
+}
+void WSDisplay::setPixelColorAlpha16(int index, int r, int g, int b, int alpha16)
+{
+    if(alpha16!=0xffff)
+    {
+        int mul=alpha16;
+        r=(r*mul+mul/2)>>16;
+        g=(g*mul+mul/2)>>16;
+        b=(b*mul+mul/2)>>16;    
+    }
+    _strip->setPixelColor(index, r,g,b );
+}
 void WSDisplay::setPixelColor(int index, int r, int g, int b, int alpha)
 {
     if(alpha!=0xff)
     {
-        int mul=alpha*256;
+        int mul=alpha*256+alpha;
         r=(r*mul)>>16;
         g=(g*mul)>>16;
         b=(b*mul)>>16;
@@ -195,60 +211,20 @@ void WSDisplay::disolveInternal(uint32_t bitField, uint32_t finalColor,WS2812B &
  * @param finalColor
  * @param strip
  */
-static uint8_t coefs[256];
-
-static void breathFactor(int minValue)
-{
-    static float fcoefs[256];
-    for(int i=0;i<256;i++)
-        {
-            float angle=(2.*i+1.5)*M_PI/255.;
-            fcoefs[i]=exp(1+sin(angle));
-            //fcoefs[256-i]=fcoefs[i];
-        }
-  
-  float min=256*256;
-  float max=0;
-  for(int i=0;i<256;i++)
-  {
-      if(fcoefs[i]<min) min=fcoefs[i];
-      if(fcoefs[i]>max) max=fcoefs[i];
-  }
-  max=(255-minValue)/(max-min);
-  for(int i=0;i<256;i++)
-  {
-      float val=fcoefs[i]-min;
-      val=val*max;
-      coefs[i]=(int)(0.5+minValue+val);
-  }
-}
-/**
- * 
- * @param bitField
- * @param finalColor
- * @param strip
- */
 void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
 {
-  int wait=256/10;
+  int wait=30;
   int nbPixel=strip.numPixels();
   
-  static bool done=false;
-  
-  if(!done)
-  {
-             done=true;
-             breathFactor(25);
-  }
   int j;
-  for(int j=0;j<256*2;j+=1) // 4 cycles
+  for(int j=0;j<256*3;j++) // X cycles
   {
-      int alpha=coefs[((int)j)&0xff];      
+      int alpha=breath_k[j&0xff];      
       for(int i=0;i<nbPixel;i++)
       {
           if(bitField & (1<<i)) 
           {              
-              setPixelColor(i,finalColor,alpha);
+              setPixelColorAlpha16(i,finalColor,alpha);
           }
           else
           {
@@ -258,8 +234,7 @@ void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &s
       }
       strip.show();
       xDelay(wait);
-  }
-   
+  }   
 }
 /**
  */

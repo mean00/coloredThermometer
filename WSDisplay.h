@@ -17,6 +17,8 @@ public:
             void    breath();
             void    setPixelColor(int index, uint32_t color,int alpha=0xff);
             void    setPixelColor(int index, int r, int g, int b, int alpha=0xff);
+            void    setPixelColorAlpha16(int index, int r, int g, int b, int alpha16);
+            void    setPixelColorAlpha16(int index, uint32_t color, int alpha16);
 protected:
   static    uint32_t Wheel(int WheelPos );
             void     rainbowCycle(uint8_t wait,WS2812B &strip) ;
