@@ -202,8 +202,9 @@ static void breathFactor(int minValue)
     static float fcoefs[256];
     for(int i=0;i<256;i++)
         {
-            float angle=1*M_PI/2.+(2.*M_PI*i)/255;
-            fcoefs[i]=exp(sin(angle));
+            float angle=(2.*i+1.5)*M_PI/255.;
+            fcoefs[i]=exp(1+sin(angle));
+            //fcoefs[256-i]=fcoefs[i];
         }
   
   float min=256*256;
@@ -218,7 +219,7 @@ static void breathFactor(int minValue)
   {
       float val=fcoefs[i]-min;
       val=val*max;
-      coefs[i]=minValue+(int)val;
+      coefs[i]=(int)(0.5+minValue+val);
   }
 }
 /**
@@ -229,7 +230,7 @@ static void breathFactor(int minValue)
  */
 void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
 {
-  int wait=20;
+  int wait=256/10;
   int nbPixel=strip.numPixels();
   
   static bool done=false;
@@ -237,12 +238,12 @@ void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &s
   if(!done)
   {
              done=true;
-             breathFactor(33);
+             breathFactor(25);
   }
   int j;
-  for(int j=0;j<256*4;j+=1)
+  for(int j=0;j<256*2;j+=1) // 4 cycles
   {
-      int alpha=coefs[128+((int)j)&0xff];      
+      int alpha=coefs[((int)j)&0xff];      
       for(int i=0;i<nbPixel;i++)
       {
           if(bitField & (1<<i)) 
