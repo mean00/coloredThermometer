@@ -15,6 +15,7 @@ public:
             void    banner();
             void    disolve();
             void    breath();
+            void    clear();
             void    setPixelColor(int index, uint32_t color,int alpha=0xff);
             void    setPixelColor(int index, int r, int g, int b, int alpha=0xff);
             void    setPixelColorAlpha16(int index, int r, int g, int b, int alpha16);

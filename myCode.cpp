@@ -43,6 +43,13 @@ void MainTask( void *a )
         myLoop();
     }
 }
+
+#define DOIT(x) \        
+        _wsDisplay->x(); \
+        xDelay(1000); \
+        _wsDisplay->clear(); \
+        xDelay (5000);
+
 /**
  * 
  */
@@ -50,10 +57,12 @@ void myLoop()
 { 
     temp=tempDaemon->getTemp();        
     _wsDisplay->setTemp(temp);
-    _wsDisplay->snake();
-    _wsDisplay->breath();
-    //_wsDisplay->disolve();
-//    xDelay(2000);
+    
+    DOIT(snake)
+    DOIT(disolve)
+    DOIT(breath)
+    
+    
 }
 
 // EOF

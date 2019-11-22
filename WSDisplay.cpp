@@ -73,9 +73,9 @@ void WSDisplay::setPixelColorAlpha16(int index, int r, int g, int b, int alpha16
     if(alpha16!=0xffff)
     {
         int mul=alpha16;
-        r=(r*mul+mul/2)>>16;
-        g=(g*mul+mul/2)>>16;
-        b=(b*mul+mul/2)>>16;    
+        r=(r*mul+(1<<15))>>16;
+        g=(g*mul+(1<<15))>>16;
+        b=(b*mul+(1<<15))>>16;    
     }
     _strip->setPixelColor(index, r,g,b );
 }
@@ -167,42 +167,37 @@ void WSDisplay::snakeInternal(uint32_t bitField, uint32_t finalColor,WS2812B &st
  */
 void WSDisplay::disolveInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
 {
-  int step=32;
-  int shift;
-  int wait=40;
-  uint32_t    bits[32];
+  int wait=8;
   int nbPixel=strip.numPixels();
-  
-  
-  for(int i=0;i<nbPixel;i++)
-      if(bitField & (1<<i)) 
-          bits[i]=finalColor;
-      else                  
-          bits[i]=0;
-
-  int j;
-  uint32_t mask=0xff;
-  for(int luma=0;luma<255;luma+=step)
+  for(int luma=0;luma<255;luma+=4)
   {
-      shift=luma/8;
+        for(int i=0;i<nbPixel;i++)
+        {
+                  setPixelColorAlpha16(i,finalColor,luma*256);
+                  strip.show();
+        }
+        xDelay(wait);
+    }
+  
+  for(int luma=255;luma>=0;luma-=2)
+  {      
       for(int i=0;i<nbPixel;i++)
       {
-          if(luma>128 || !bits[i])
-          {
-              uint32_t col= Wheel(((i * 256 / strip.numPixels()) + j) & 255);
-              setPixelColor(i,col>>16,col>>8,col);
+          if(!(bitField & (1<<i)))
+          {              
+                setPixelColorAlpha16(i,finalColor,luma*256);
           }
-          else
+          else 
           {
-               setPixelColor(i, bits[i]);
+                setPixelColor(i,finalColor);           
           }   
           
       }
-      j=(j+1)&255;
       strip.show();
       xDelay(wait);
       
   }
+  xDelay(500);
 }
 
 /**
@@ -217,7 +212,7 @@ void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &s
   int nbPixel=strip.numPixels();
   
   int j;
-  for(int j=0;j<512*3;j++) // X cycles
+  for(int j=0;j<512;j++) // X cycles
   {
       int alpha=breath_k[j&511];      
       for(int i=0;i<nbPixel;i++)
@@ -274,4 +269,13 @@ uint32_t WSDisplay::Wheel(int WheelPos )
      return WS2812B::Color(0, WheelPos * 3, 255 - WheelPos * 3);
     }
   }
+}
+/**
+ * 
+ */
+void    WSDisplay::clear()
+{
+     int nbPixel=_strip->numPixels();
+     for(int i=0;i<nbPixel;i++) _strip->setPixelColor(i,0);
+     _strip->show();
 }
