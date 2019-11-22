@@ -213,13 +213,13 @@ void WSDisplay::disolveInternal(uint32_t bitField, uint32_t finalColor,WS2812B &
  */
 void WSDisplay::breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
 {
-  int wait=30;
+  int wait=15;
   int nbPixel=strip.numPixels();
   
   int j;
-  for(int j=0;j<256*3;j++) // X cycles
+  for(int j=0;j<512*3;j++) // X cycles
   {
-      int alpha=breath_k[j&0xff];      
+      int alpha=breath_k[j&511];      
       for(int i=0;i<nbPixel;i++)
       {
           if(bitField & (1<<i)) 
