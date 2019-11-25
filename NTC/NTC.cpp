@@ -11,7 +11,7 @@ NTC::NTC(int pin, float beta, float resistance, float otherResistance)
     _resistance=resistance;
     _otherResistance=otherResistance;
     
-    _adc=new DSOADC(PA0);
+    _adc=new DSOADC(_pin);
     _adc->setupADCs();
     _adc->prepareDMASampling(ADC_SMPR_239_5,ADC_PRE_PCLK2_DIV_8);    
 }

@@ -29,7 +29,7 @@ void TemperatureDaemon::trampoline(void *a)
  */
 bool TemperatureDaemon::init()
 {
-    ntc=new  NTC(PA0, -3950,100,220);
+    ntc=new  NTC(PB1, -3950,100,220);
     xTaskCreate( TemperatureDaemon::trampoline, "Temp", 250, this, 12, NULL );   
     return true;
 }
