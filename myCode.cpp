@@ -6,11 +6,11 @@
 #include "WSDisplay.h"
 WSDisplay *_wsDisplay;
 
-void rainbowCycle(uint8_t wait,WS2812B &strip) ;
-void draw(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
+
+
 void MainTask( void *a );
 void myLoop() ;
-uint32_t Wheel(byte WheelPos) ;
+void startUSBHID();
 
 #define DSO_MAIN_TASK_PRIORITY 10
 
@@ -29,6 +29,7 @@ void mySetup()
     tempDaemon->init();
     _wsDisplay=new WSDisplay;      
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
+    startUSBHID();
     vTaskStartScheduler();      
 }
 /**

@@ -56,9 +56,16 @@ ADD_SUBDIRECTORY(WS2812)
 ADD_SUBDIRECTORY(WSNumber)
 ADD_SUBDIRECTORY(NTC)
 
+#
+# USB Composite
+#
+
+SET(USB_SRCS USBComposite/USBComposite.cpp USBComposite/USBHID.cpp  USBComposite/usb_setup.cpp)
+include_directories(USBComposite)
+
 generate_arduino_firmware(ColoredThermo
                 SKETCH thermoLed.ino
-                SRCS myCode.cpp  tempDaemon.cpp   WSDisplay.cpp 
+                SRCS myCode.cpp  tempDaemon.cpp   WSDisplay.cpp  ${USB_SRCS} thermoHID.cpp
                 PORT ${ARDUINO_DEFAULT_PORT}
                 BOARD_CPU ${ARDUINO_CPU}
                 )
