@@ -3,6 +3,45 @@
 #include "MapleFreeRTOS1000_pp.h"
 #include "WSDisplay.h"
 #include "breath_table.h"
+
+typedef struct translation
+{
+    float maxTemp;
+    uint32_t color;
+};
+
+#define MKCOLOR(a,b,c) ((a<<16)+(b<<8)+c)
+
+translation translationTable[]=
+{
+    {4.4,MKCOLOR(28,25,57)}, // 40
+    {7.2,MKCOLOR(7,35,56)}, // 45
+    {10, MKCOLOR(12,55,70)},// 50
+    {12.7,MKCOLOR(10,64,76)}, //55
+    {15.55,MKCOLOR(60,84,74)}, // 60
+    {18.3,MKCOLOR(7,65,51)}, // 65
+    {21, MKCOLOR(40,62,22)},// 70
+    {22.7,MKCOLOR(54,67,28)}, // 73
+    {24.4,MKCOLOR(71,71,21)}, // 76
+    {26.11,MKCOLOR(90,84,41)}, // 79
+    {27.7, MKCOLOR(92,80,20)},// 82
+    {29.4, MKCOLOR(92,68,9)},// 85
+    {31.1, MKCOLOR(90,54,18)},// 88
+    {32.7, MKCOLOR(94,35,17)},// 91
+    {34.4, MKCOLOR(91,27,23)},// 94
+    {36,   MKCOLOR(94,29,33)},// 97
+    {37.8, MKCOLOR(70,25,28)}// 100    
+};
+static uint32_t temperatureToColor(float temp)
+{
+    int n=sizeof(translationTable)/sizeof(translation);
+    for(int i=0;i<n;i++)
+    {
+        if(temp<translationTable[i].maxTemp)  return translationTable[i].color;
+    }
+    return translationTable[n-1].color;
+}
+
 /**
  */
 WSDisplay::WSDisplay()
@@ -11,6 +50,8 @@ WSDisplay::WSDisplay()
     _strip=new WS2812B(NUM_LEDS);
     _strip->begin();
     _digits->setValue(20);
+    _temp=21.;
+    _color=temperatureToColor(_temp);
     
 
 }
@@ -19,6 +60,7 @@ WSDisplay::WSDisplay()
  void    WSDisplay::setTemp(float temp)
  {
      _temp=temp;
+     _color=temperatureToColor(_temp);
 }
  /**
   */
@@ -26,16 +68,14 @@ void    WSDisplay::snake(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
-    uint32_t finalColor=0x2F33;
-    snakeInternal(full,finalColor,*_strip);
+    snakeInternal(full,_color,*_strip);
 
 }
 void    WSDisplay::disolve(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
-    uint32_t finalColor=0x2F33;
-    disolveInternal(full,finalColor,*_strip);
+    disolveInternal(full,_color,*_strip);
 
 }
 
@@ -43,8 +83,7 @@ void    WSDisplay::breath(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
-    uint32_t finalColor=0x2F33;
-    breathInternal(full,finalColor,*_strip);
+    breathInternal(full,_color,*_strip);
 
 }
 /**

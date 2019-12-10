@@ -29,4 +29,5 @@ protected:
             float    _temp;
             WSNumber *_digits;
             WS2812B  *_strip;
+            uint32_t _color;
 };
