@@ -26,7 +26,7 @@ void mySetup()
     afio_cfg_debug_ports( AFIO_DEBUG_SW_ONLY); // Unlock PB3 & PB4
     interrupts();    
     tempDaemon=new TemperatureDaemon;  
-    tempDaemon->init();
+    tempDaemon->init(-3230); // our beta
     _wsDisplay=new WSDisplay;      
     xTaskCreate( MainTask, "MainTask", 250, NULL, DSO_MAIN_TASK_PRIORITY, NULL );   
     startUSBHID();

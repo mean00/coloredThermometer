@@ -27,9 +27,9 @@ void TemperatureDaemon::trampoline(void *a)
  * @param dhtAdr
  * @return 
  */
-bool TemperatureDaemon::init()
+bool TemperatureDaemon::init(int beta)
 {
-    ntc=new  NTC(PB1, -3230,100,220); // supposedly -3950
+    ntc=new  NTC(PB1, beta,100,220); // supposedly -3950
     xTaskCreate( TemperatureDaemon::trampoline, "Temp", 250, this, 12, NULL );   
     return true;
 }

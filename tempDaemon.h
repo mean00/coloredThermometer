@@ -5,7 +5,7 @@ class TemperatureDaemon
 {
 public:
                 TemperatureDaemon();
-        bool    init();
+        bool    init(int beta);
         float   getTemp();
 static  void    trampoline(void *);
 
