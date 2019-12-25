@@ -48,9 +48,9 @@ float   TemperatureDaemon::getTemp()
 void   TemperatureDaemon::run()
 {
     while(1)
-    {
-        xDelay(1000);
+    {        
         ntc->getTemperature(_temp); // this should be fairly atomic
+        xDelay(1000);
     }
    
 };

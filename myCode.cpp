@@ -11,7 +11,7 @@ WSDisplay *_wsDisplay;
 void MainTask( void *a );
 void myLoop() ;
 void startUSBHID();
-
+extern void hidSetTemp(float v);
 #define DSO_MAIN_TASK_PRIORITY 10
 
 TemperatureDaemon *tempDaemon;
@@ -46,6 +46,9 @@ void MainTask( void *a )
 }
 
 #define DOIT(x) \        
+        temp=tempDaemon->getTemp();         \
+        _wsDisplay->setTemp(temp); \
+        hidSetTemp(temp);   \
         _wsDisplay->x(); \
         xDelay(1000); \
         _wsDisplay->clear(); \
@@ -56,9 +59,6 @@ void MainTask( void *a )
  */
 void myLoop() 
 { 
-    temp=tempDaemon->getTemp();        
-    _wsDisplay->setTemp(temp);
-    
     DOIT(snake)
     DOIT(disolve)
     DOIT(breath)
