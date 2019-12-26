@@ -69,23 +69,35 @@ void    WSDisplay::snake(void)
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
     snakeInternal(full,_color,*_strip);
-
 }
+/**
+ * 
+ */
 void    WSDisplay::disolve(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
     disolveInternal(full,_color,*_strip);
-
 }
-
+/**
+ */
 void    WSDisplay::breath(void)
 {
     _digits->setValue(floor(_temp+0.5));
     uint32_t full=_digits->getBitfield();
     breathInternal(full,_color,*_strip);
-
 }
+/**
+ * 
+ */
+void    WSDisplay::trail(void)
+{
+    _digits->setValue(floor(_temp+0.5));
+    uint32_t full=_digits->getBitfield();
+    trailInternal(full,_color,*_strip);
+}
+
+
 /**
  * 
  */
@@ -107,6 +119,8 @@ void WSDisplay::setPixelColorAlpha16(int index, uint32_t color,int alpha)
 {    
     setPixelColorAlpha16(index, (color>>16)&0xff,(color>>8)&0xff,color&0xff,alpha);
 }
+
+
 void WSDisplay::setPixelColorAlpha16(int index, int r, int g, int b, int alpha16)
 {
     if(alpha16!=0xffff)
@@ -198,6 +212,38 @@ void WSDisplay::snakeInternal(uint32_t bitField, uint32_t finalColor,WS2812B &st
     }
 }
 
+/**
+ * 
+ * @param bitField
+ * @param finalColor
+ * @param strip
+ */
+void WSDisplay::trailInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip)
+{
+  int wait=20;
+  int nbPixel=strip.numPixels();
+  
+  uint32_t col;
+  for(int i=0;i<nbPixel;i++)
+  {      
+      for(int j=0;j<i;j++)
+      {
+        if(bitField & (1<<j)) 
+            col=finalColor;
+        else                  
+            col=0;   
+        setPixelColor(j,col);
+      }
+      setPixelColor(i,finalColor);
+      strip.show();
+      xDelay(wait);        
+    }
+  int last=nbPixel-1;
+  if(bitField & (1<<last))
+      setPixelColor(last,finalColor);
+  else
+      setPixelColor(last,0);
+}
 /**
  * 
  * @param bitField

@@ -15,6 +15,7 @@ public:
             void    banner();
             void    disolve();
             void    breath();
+            void    trail();
             void    clear();
             void    setPixelColor(int index, uint32_t color,int alpha=0xff);
             void    setPixelColor(int index, int r, int g, int b, int alpha=0xff);
@@ -26,6 +27,7 @@ protected:
             void     snakeInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
             void     disolveInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
             void     breathInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
+            void     trailInternal(uint32_t bitField, uint32_t finalColor,WS2812B &strip);
             float    _temp;
             WSNumber *_digits;
             WS2812B  *_strip;
