@@ -42,15 +42,24 @@ xBinarySemaphore *usbLock=NULL;
             static uint32_t t;
             t=(uint32_t)(_temp*100.);
             _report[0]=1;            // Report ID
+            
             _report[4]= xdigit(t);
             _report[3]= xdigit(t/10);
             _report[2]= xdigit(t/100);
             _report[1]= xdigit(t/1000);
+            
+            uint32_t r=(uint32_t)_resistor*10;
+            _report[8]= xdigit(r);
+            _report[7]= xdigit(r/10);
+            _report[6]= xdigit(r/100);
+            _report[5]= xdigit(r/1000);
+            
             sendReport();
         }
 public:
-        uint8_t _report[4+1];
+        uint8_t _report[8+1];
         float   _temp;
+        float   _resistor;
  };
  
 /**
@@ -70,8 +79,9 @@ public:
                 USBHID::begin(reportDescription, sizeof(reportDescription));  
                 
             }
-            void setTemperature(float t)
+            void setTempAndResistor(float t, float resistor)  
             {
+                report->_resistor=resistor;
                 report->_temp=t;                
             }
             void doReport()
@@ -91,10 +101,10 @@ void startUSBHID()
 {
     xTaskCreate( HidTask, "HidTask", 250, NULL, 5, NULL );   
 }
-void hidSetTemp(float v)
+void hidSetTempAndResistor(float temp,float resistor)
 {
     if(sensorHid)
-        sensorHid->setTemperature(v);
+        sensorHid->setTempAndResistor(temp,resistor);
 }
 void HidTask(void *a)
 {

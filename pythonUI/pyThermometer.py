@@ -43,12 +43,14 @@ round=0
 while True:
     print("Read "+str(round))
     round=round+1
-    out=bluepill.read(4,1000,True)
+    out=bluepill.read(8,1000,True)
     if(out is not None):
         temp=out[0]*1000+out[1]*100+out[2]*10+out[3]
         temp=temp/100.
         print(temp)
         ui.updateTemp(temp)
+        resistor=out[4+0]*1000+out[4+1]*100+out[4+2]*10+out[4+3]
+        print("Resistor:"+str(resistor))
         time.sleep(1)
     app.processEvents()
 print("All done")

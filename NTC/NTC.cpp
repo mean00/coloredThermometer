@@ -33,20 +33,20 @@ bool    NTC::getTemperature(float &temp)
         r/=nbSamples;
         
         // 1 - Compute resistance
-        float ntcResistor;
+        
         if(r>=4090) 
-            ntcResistor=480; 
+            _currentValue=480; 
         else
         {
-            ntcResistor=_otherResistance*(r)/(4095-r);
+            _currentValue=_otherResistance*(r)/(4095-r);
         }
         // now compute temp
-        if(fabs(_resistance-ntcResistor)<1.0)
+        if(fabs(_resistance-_currentValue)<1.0)
         {
             temp=25;
         }else
         {
-            float alpha=_beta/log(_resistance/ntcResistor);
+            float alpha=_beta/log(_resistance/_currentValue);
             temp=alpha*(K+25)/(K+25+alpha)-K;
         }
         return true;
