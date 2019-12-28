@@ -64,13 +64,8 @@ void myLoop()
 { 
     DOIT(snake)
     DOIT(trail)
-            /*
-    
     DOIT(disolve)
     DOIT(breath)
-             */
-    
-    
 }
 
 // EOF
